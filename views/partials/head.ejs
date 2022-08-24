@@ -1,0 +1,90 @@
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= title %></title>
+<style>
+  :root {
+    --black: #101010;
+    --white: #fff;
+  }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font: inherit;
+    font-size: 16px;
+    color: var(--white);
+  }
+  html {
+    font-size: 10px;
+    font-family: "consolas", monospace;
+  }
+  body {
+    font-size: 1.6rem;
+    background-color: var(--black);
+    display: grid;
+    align-content: center;
+    place-items: center;
+    min-height: 100vh;
+  }
+  input, button {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    display: block;
+    padding: 1rem 2rem;
+  }
+  input {
+    width: 100%;
+  }
+  .border {
+    border: .1rem solid var(--white);
+  }
+  .button {
+    cursor: pointer;
+  }
+  .button:hover {
+    background-color: var(--white);
+    color: var(--black);
+  }
+  
+  .center {
+    width: min(90%, 40rem);
+    margin-inline: auto;
+  }
+  .bold {
+    font-weight: 700;
+  }
+  .main-title {
+    margin-bottom: 4rem;
+    font-size: 2.4rem;
+  }
+  .container {
+    padding: 2rem;
+  }
+  label {
+    margin-bottom: .5rem;
+    margin-top: 2rem;
+    display: block;
+  }
+  .container__switch-message,
+  .container__submit-button {
+    margin-top: 2rem;
+  }
+  .container__submit-button {
+    margin-left: auto;
+    width: fit-content;
+  }
+  .flex {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+  }
+  .flex > * {
+    margin-left: 0;
+    margin-top: 0;
+    display: block;
+  }
+</style>

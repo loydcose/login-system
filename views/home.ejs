@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("partials/head.ejs") %>
+</head>
+<body>
+  <h1>Hello <%= username %>!</h1>
+  <br>
+  <a href="/changeUsername/<%= accountId %>">Change username</a>
+  <a href="/changePassword/<%= accountId %>">Change password</a>
+  <a href="/deleteAccount/<%= accountId %>">Delete this account</a>
+  <a href="/login">sign-out</a>
+</body>
+</html>

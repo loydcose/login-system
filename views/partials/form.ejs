@@ -1,0 +1,19 @@
+<form class="container border center" method="POST" action="<%= actionRoute %>">
+  <h2 class="container__title bold"><%= title %></h2>
+
+
+  <label for="username" class="container__username-label">Username</label>
+  <input type="text" class="border container__username" id="username" name="username" maxlength="20" required autocomplete="on" autofocus />
+
+
+  <label for="password" class="container__password-label">Password</label>
+  <input type="password" class="border container__password" id="password" name="password" maxlength="20" required autocomplete="on" />
+
+
+  <label for="<%= rePasswordID %>" class="container__password-label"><%= rePasswordLabel %></label>
+  <input type="<%= rePasswordType %>" class="border container__password" id="<%= rePasswordID %>" name="rePassword" maxlength="20" required autocomplete="on" />
+
+
+  <p class="container__switch-message">Don't have an account? <a href="<%= switchMessageRoute %>"><%= switchMessage %></a></p>
+  <button type="submit" class="container__submit-button button border">Submit</button>
+</form>
