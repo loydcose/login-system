@@ -17,6 +17,7 @@ app.use(
     }
   })
 )
+app.use(express.static('public'))
 
 let isLogged = false
 let userObj = null
