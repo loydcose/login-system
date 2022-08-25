@@ -2,7 +2,8 @@ const User = require('./user_schema')
 const express = require('express')
 const { ObjectId } = require('mongodb')
 const methodOverride = require('method-override')
-const { hash, compare } = require("./bcrypt")
+const { hash, compare } = require('./bcrypt')
+const formatDate = require('./format_date')
 const app = express()
 
 app.set('view engine', 'ejs')
@@ -20,7 +21,7 @@ app.use(
 let isLogged = false
 let userObj = null
 
-// login page
+// GET LOGIN
 app.get('/login', (req, res) => {
   isLogged = false
   res.render('login', {
@@ -34,13 +35,12 @@ app.get('/login', (req, res) => {
   })
 })
 
-// POST login
+// POST LOGIN
 app.post('/login', (req, res) => {
   User.findOne({ username: req.body.username }).then((result) => {
     if (result === null) {
       return res.send("No account exist!<br><a href='/login'>Login again</a>")
     }
-
     compare(req.body.password, result.password).then((isMatched) => {
       if (isMatched) {
         userObj = result
@@ -94,7 +94,6 @@ app.post('/signup', (req, res) => {
   // hashed password
 })
 
-
 // GET home
 app.get('/home', (req, res) => {
   if (userObj === null) {
@@ -107,6 +106,7 @@ app.get('/home', (req, res) => {
     title: 'homepage',
     username: userObj.username,
     accountId: userObj._id.toString(),
+    createdAt: formatDate(userObj.createdAt),
   })
 
   // userObj back to null pls
@@ -126,30 +126,22 @@ app.get('/changeUsername/:id', (req, res) => {
 })
 
 // UPDATE username
-app.put('/changeUsername/:id', (req, res) => {
-  User.findOne({ _id: ObjectId(req.params.id) }).then((result) => {
-    if (req.body.password !== result.password) {
-      return res.send("Password are incorrect!<br><a href='/home'>Back to home</a>")
-    }
+app.put('/changeUsername/:id', async (req, res) => {
+  const userdb = await User.findOne({ _id: ObjectId(req.params.id) })
+  const isMatched = await compare(req.body.password, userdb.password)
 
-    User.exists({ username: req.body.username.trim() })
-      .then((result) => {
-        if (result) {
-          res.send("Username already exists<br><a href='/home'>Back to home</a>")
-        } else {
-          return User.updateOne({ _id: ObjectId(userObj._id.toString()) }, { $set: { username: req.body.username.trim() } })
-        }
-      })
-      .then((result) => {
-        userObj = null
-        res.send("Changed!<br><a href='/login'>Back to login</a>")
-      })
+  if (!isMatched) {
+    return res.send("Password are incorrect!<br><a href='/home'>Back to home</a>")
+  }
 
-    // fixed every time login
-    // apply routes
-    // change pass
-    // delete account
-  })
+  const isExist = await User.exists({ username: req.body.username.trim() })
+  if (isExist) {
+    return res.send("Username already exists<br><a href='/home'>Back to home</a>")
+  } else {
+    await User.updateOne({ _id: ObjectId(userObj._id.toString()) }, { $set: { username: req.body.username.trim() } })
+    userObj = null
+    res.send("Changed!<br><a href='/login'>Back to login</a>")
+  }
 })
 
 // GET change password page
@@ -163,27 +155,23 @@ app.get('/changePassword/:id', (req, res) => {
 })
 
 // UPDATE password
-app.put('/changePassword/:id', (req, res) => {
-  // check if password were matched
-  // check if password was right
+app.put('/changePassword/:id', async (req, res) => {
   const { newPassword, reNewPassword, password } = req.body
 
   if (newPassword !== reNewPassword) {
     return res.send("Password didn't matched!<br><a href='/home'>Back to home</a>")
   }
 
-  User.findOne({ _id: ObjectId(req.params.id) }).then((result) => {
-    if (req.body.password !== result.password) {
-      res.send("Password were incorrect!<br><a href='/home'>Back to home</a>")
-    } else {
-      User.updateOne({ _id: ObjectId(req.params.id) }, { $set: { password: req.body.newPassword } }).then((result) => {
-        console.log(result)
-        res.send("Password changed!<br><a href='/login'>Back to login</a>")
-      })
-    }
-  })
+  const userdb = await User.findOne({ _id: ObjectId(req.params.id) })
+  const isMatched = await compare(password, userdb.password)
 
-  // fix re password on db
+  if (!isMatched) {
+    res.send("Password were incorrect!<br><a href='/home'>Back to home</a>")
+  } else {
+    const newPassword = await hash(reNewPassword)
+    await User.updateOne({ _id: ObjectId(req.params.id) }, { $set: { password: newPassword } })
+    res.send("Password changed!<br><a href='/login'>Back to login</a>")
+  }
 })
 
 // GET delete account page
@@ -206,7 +194,10 @@ app.delete('/deleteAccount/:id', (req, res) => {
   })
 })
 
-
 app.listen(5000, () => {
   console.log('Server started')
 })
+
+// move to altas database
+// learn and use heroku for deployment
+// upload on github "Simple login system"
