@@ -19,9 +19,14 @@ app.use(
     }
   })
 )
+app.use(express.static('public'))
 
 let isLogged = false
 let userObj = null
+
+app.get('/', (req, res) => {
+  res.send("Hello!")
+})
 
 // GET LOGIN
 app.get('/login', (req, res) => {
