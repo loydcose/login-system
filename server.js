@@ -6,6 +6,8 @@ const { hash, compare } = require('./bcrypt')
 const formatDate = require('./format_date')
 const app = express()
 
+const port = process.env.PORT || 5000
+
 app.set('view engine', 'ejs')
 app.use(express.urlencoded({ extended: false }))
 app.use(
@@ -21,6 +23,10 @@ app.use(express.static('public'))
 
 let isLogged = false
 let userObj = null
+
+app.get('/', (req, res) => {
+  res.send("Hello!")
+})
 
 // GET LOGIN
 app.get('/login', (req, res) => {
@@ -195,7 +201,7 @@ app.delete('/deleteAccount/:id', (req, res) => {
   })
 })
 
-app.listen(5000, () => {
+app.listen(port, () => {
   console.log('Server started')
 })
 
