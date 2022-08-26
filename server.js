@@ -25,10 +25,10 @@ let isLogged = false
 let userObj = null
 
 app.get('/', (req, res) => {
-  res.send("Hello!")
+  res.send('Hello!')
 })
 
-// GET LOGIN
+// GET login page
 app.get('/login', (req, res) => {
   isLogged = false
   res.render('login', {
@@ -42,7 +42,7 @@ app.get('/login', (req, res) => {
   })
 })
 
-// POST LOGIN
+// POST login
 app.post('/login', (req, res) => {
   User.findOne({ username: req.body.username }).then((result) => {
     if (result === null) {
@@ -59,7 +59,7 @@ app.post('/login', (req, res) => {
   })
 })
 
-// signup page
+// GET signup page
 app.get('/signup', (req, res) => {
   isLogged = false
   res.render('signup', {
@@ -78,7 +78,6 @@ app.post('/signup', (req, res) => {
   if (req.body.password !== req.body.rePassword) {
     return res.send("Password didn't matched!<br><a href='/signup'>Back to signup</a>")
   }
-
   hash(req.body.password)
     .then((result) => {
       const reqObj = {
@@ -95,34 +94,25 @@ app.post('/signup', (req, res) => {
       console.log(err)
       res.send(`Validation failed, or username already taken!<br><a href='/signup'>Back to signup</a>`)
     })
-
-  // username = alphabet and numbers
-  // password = alphabet, numbers and special chars
-  // hashed password
 })
 
-// GET home
+// GET home page
 app.get('/home', (req, res) => {
   if (userObj === null) {
     return res.send("Session expired!<br><a href='/login'>Back to login</a>")
   }
-
   isLogged = true
-
   res.render('home', {
     title: 'homepage',
     username: userObj.username,
     accountId: userObj._id.toString(),
     createdAt: formatDate(userObj.createdAt),
   })
-
-  // userObj back to null pls
 })
 
-// GET change username page
+// GET change username
 app.get('/changeUsername/:id', (req, res) => {
   if (!isLogged) return res.send("You are not logged in yet!<br><a href='/login'>Back to login</a>")
-
   User.findOne({ _id: ObjectId(req.params.id) }).then((result) => {
     res.render('change_username', {
       title: 'Change username',
@@ -132,15 +122,13 @@ app.get('/changeUsername/:id', (req, res) => {
   })
 })
 
-// UPDATE username
+// UPDATE change username
 app.put('/changeUsername/:id', async (req, res) => {
   const userdb = await User.findOne({ _id: ObjectId(req.params.id) })
   const isMatched = await compare(req.body.password, userdb.password)
-
   if (!isMatched) {
     return res.send("Password are incorrect!<br><a href='/home'>Back to home</a>")
   }
-
   const isExist = await User.exists({ username: req.body.username.trim() })
   if (isExist) {
     return res.send("Username already exists<br><a href='/home'>Back to home</a>")
@@ -151,27 +139,23 @@ app.put('/changeUsername/:id', async (req, res) => {
   }
 })
 
-// GET change password page
+// GET change password
 app.get('/changePassword/:id', (req, res) => {
   if (!isLogged) return res.send("You are not logged in yet!<br><a href='/login'>Back to login</a>")
-
   res.render('change_password', {
     title: 'Change password',
     accountId: req.params.id,
   })
 })
 
-// UPDATE password
+// UPDATE change password
 app.put('/changePassword/:id', async (req, res) => {
   const { newPassword, reNewPassword, password } = req.body
-
   if (newPassword !== reNewPassword) {
     return res.send("Password didn't matched!<br><a href='/home'>Back to home</a>")
   }
-
   const userdb = await User.findOne({ _id: ObjectId(req.params.id) })
   const isMatched = await compare(password, userdb.password)
-
   if (!isMatched) {
     res.send("Password were incorrect!<br><a href='/home'>Back to home</a>")
   } else {
@@ -181,30 +165,24 @@ app.put('/changePassword/:id', async (req, res) => {
   }
 })
 
-// GET delete account page
+// GET delete account
 app.get('/deleteAccount/:id', (req, res) => {
   if (!isLogged) return res.send("You are not logged in yet!<br><a href='/login'>Back to login</a>")
   res.render('delete_account', { title: 'Account deletion', accountId: req.params.id })
 })
 
-// DELETE account
-app.delete('/deleteAccount/:id', (req, res) => {
-  User.findOne({ _id: ObjectId(req.params.id) }).then((result) => {
-    if (req.body.password !== result.password) {
-      res.send("Password were incorrect!<br><a href='/home'>Back to home</a>")
-    } else {
-      User.deleteOne({ _id: ObjectId(req.params.id) }).then((result) => {
-        console.log(result)
-        res.send("Account deleted!<br><a href='/login'>Back to login</a>")
-      })
-    }
-  })
+// DELETE delete account
+app.delete('/deleteAccount/:id', async (req, res) => {
+  const findUser = await User.findOne({ _id: ObjectId(req.params.id) })
+  const isMatched = await compare(req.body.password, findUser.password)
+  if (!isMatched) {
+    res.send("Password were incorrect!<br><a href='/home'>Back to home</a>")
+  } else {
+    await User.deleteOne({ _id: ObjectId(req.params.id) })
+    res.send("Account deleted!<br><a href='/login'>Back to login</a>")
+  }
 })
 
 app.listen(port, () => {
   console.log('Server started')
 })
-
-// move to altas database
-// learn and use heroku for deployment
-// upload on github "Simple login system"
